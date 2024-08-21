@@ -129,10 +129,7 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
             elif self.variation_value == 'alpha_var':
                 rgba_value = [None, None, None, rgba_value[3]]
 
-        # NOTE: if not using *_all edit_type use selected only
-        selected = False
-        if self.edit_type in ('apply', 'clear'):
-            selected = True
+        use_selected = not "_all" in self.edit_type
 
         selected_mesh_objects = \
             [ob for ob in context.selected_objects if ob.type == 'MESH']
@@ -144,25 +141,20 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
             bm = bmesh.new()
             bm.from_mesh(ob.data)
             layer, layer_type = get_bmesh_active_color(bm, ob.data)
-            components = get_component_colors(bm, layer, layer_type, selected)
+            components = \
+                get_component_colors(bm, layer, layer_type, use_selected)
             for component, _color in components.items():
-                # Smooth (vert is required)
-                if color_plus.interp_type == "smooth":
+                # Smooth
+                if color_plus.interp_type == "smooth" \
+                        or active_color.domain != 'CORNER':
                     if layer_type == "loop":
                         for loop in component.vert.link_loops:
                             self.change_color(loop, layer, rgba_value)
-                    else: # Vert
+                    else:  # Vert
                         self.change_color(component, layer, rgba_value)
-                # Hard (loop is required)
+                # Hard
                 elif color_plus.interp_type == "hard":
-                    if layer_type != "loop" or active_color.domain != 'CORNER':
-                        self.report(
-                            {'WARNING'}, "Can't run hard interpolation on vertex domain color attribute"
-                        )
-                        for loop in component.vert.link_loops:
-                            self.change_color(loop, layer, rgba_value)
-                        continue
-                    if selected and component.face.select:
+                    if use_selected and component.face.select:
                         for loop in component.face.loops:
                             self.change_color(component, layer, rgba_value)
             bm.to_mesh(ob.data)
