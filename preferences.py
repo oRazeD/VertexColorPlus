@@ -262,7 +262,9 @@ class COLORPLUS_property_group(bpy.types.PropertyGroup):
 
     custom_apply_option: EnumProperty(
         items=(
-            ('apply_to_sel', "Apply Color", ""),
+            ('apply_to_sel', "RGBA", ""),
+            ('apply_to_sel_rgb', "RGB", ""),
+            ('apply_to_sel_alpha', "Alpha", ""),
             ('apply_to_col', "Set Color", "")
         )
     )
@@ -363,7 +365,8 @@ class COLORPLUS_property_group(bpy.types.PropertyGroup):
             ('.875', "6 (R=.875)", ""),
             ('1',    "7 (R=1)",    ""),
         ),
-        name="Visibility Color"
+        name="Visibility Color",
+        description="Alteration visibility color value to assign"
     )
 
     color_custom_1: FloatVectorProperty(
@@ -528,7 +531,7 @@ class COLORPLUS_MT_presets(Menu):
 
 
 class COLORPLUS_PT_presets(PresetPanel, Panel):
-    bl_label = 'VColor Plus Presets'
+    bl_label = "Color Presets"
     preset_subdir = 'color_plus'
     preset_operator = 'script.execute_preset'
     preset_add_operator = 'color_plus.preset_add'
@@ -618,7 +621,9 @@ Certain items may still be changed if the code interacts with the outliner direc
 
             box = col.box()
             split = box.split()
-            split.label(text=MAX_OUTLINER_ITEM_MSG + self.max_outliner_items)
+            split.label(
+                text=MAX_OUTLINER_ITEM_MSG + str(self.max_outliner_items)
+            )
             split.prop(self, 'max_outliner_items')
         else: # Keymaps
             COLORPLUS_addon_keymaps.draw_keymap_items(

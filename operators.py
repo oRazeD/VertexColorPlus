@@ -78,9 +78,10 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
             ('clear_all', "Clear All", "")
         ),
         options={'HIDDEN'}
-    ) # type: ignore
+    )
 
     variation_value: bpy.props.StringProperty(options={'HIDDEN'})
+    custom_color_name: bpy.props.StringProperty(default="", options={'HIDDEN'})
 
     def change_color(self, component, layer, rgba_value) -> None:
         """Change a vert/loop components color attribute."""
@@ -104,8 +105,8 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
             )
         elif self.variation_value == 'visibility':
             color_plus = bpy.context.scene.color_plus
-            vis_color = color_plus.material_visibility
-            component[layer] = (float(vis_color), 0, 0, 1)
+            visibility_color = color_plus.material_visibility
+            component[layer] = (float(visibility_color), 0, 0, 1)
         else:
             component[layer] = rgba_value
 
@@ -118,16 +119,15 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
 
         # Get the RGB value based on the property given
         rgba_value = BLANK_ARRAY
-        if self.variation_value:
-            try:
-                rgba_value = getattr(color_plus, self.variation_value)
-            except AttributeError:
-                rgba_value = getattr(color_plus, 'color_wheel')
-            if self.variation_value == 'value_var':
-                rgba_value = \
-                    [rgba_value[0], rgba_value[1], rgba_value[2], None]
-            elif self.variation_value == 'alpha_var':
-                rgba_value = [None, None, None, rgba_value[3]]
+        if self.custom_color_name:
+            rgba_value = getattr(color_plus, self.custom_color_name)
+        else:
+            rgba_value = getattr(color_plus, 'color_wheel')
+
+        if self.variation_value == 'value_var':
+            rgba_value = [rgba_value[0], rgba_value[1], rgba_value[2], None]
+        elif self.variation_value == 'alpha_var':
+            rgba_value = [None, None, None, rgba_value[3]]
 
         use_selected = not "_all" in self.edit_type
 
@@ -146,11 +146,11 @@ class COLORPLUS_OT_edit_color(DefaultsOperator):
             for component, _color in components.items():
                 # Smooth
                 if color_plus.interp_type == "smooth" \
-                        or active_color.domain != 'CORNER':
+                or active_color.domain != 'CORNER':
                     if layer_type == "loop":
                         for loop in component.vert.link_loops:
                             self.change_color(loop, layer, rgba_value)
-                    else:  # Vert
+                    else: # Vert
                         self.change_color(component, layer, rgba_value)
                 # Hard
                 elif color_plus.interp_type == "hard":
@@ -249,7 +249,8 @@ class COLORPLUS_OT_set_color_from_active(DefaultsOperator):
                     context.scene.color_plus.color_wheel = component[layer]
                     break
             # Vert
-            if component.select \
+            if layer_type != "loop" \
+            and component.select \
             and component == active_selection:
                 context.scene.color_plus.color_wheel = component[layer]
                 break
@@ -374,12 +375,13 @@ class COLORPLUS_OT_refresh_palette_outliner(DefaultsOperator):
         Useful for skipping unnecessary outliner refreshes."""
         rounded_color = []
         skip_refresh = False
+        # NOTE: For whatever reason there is always
+        # massive floating point errors here so we round
         for channel in self.color:
-            # NOTE: For whatever reason there is always
-            # massive floating point errors here so we round
-            rounded_color.append(round(channel, 2))
-        palette_colors = \
-            [[*palette.color] for palette in ob.color_palette]
+            if not channel.is_integer():
+                channel = round(channel, 2)
+            rounded_color.append(channel)
+        palette_colors = [[*palette.color] for palette in ob.color_palette]
         for color in palette_colors:
             for idx, channel in enumerate(color):
                 color[idx] = round(channel, 2)
@@ -615,13 +617,24 @@ class COLORPLUS_OT_custom_color_apply(DefaultsOperator):
         # mode if only setting the active color
         custom_apply_option = context.scene.color_plus.custom_apply_option
         return context.mode == 'EDIT_MESH' \
-        or custom_apply_option == 'apply_to_col'
+        or custom_apply_option in ('apply_to_col', 'apply_to_sel_alpha')
 
     def execute(self, context: Context):
         color_plus = context.scene.color_plus
         if color_plus.custom_apply_option == 'apply_to_sel':
             bpy.ops.color_plus.edit_color(
-                edit_type='apply', variation_value=self.custom_color_name
+                edit_type='apply', variation_value="",
+                custom_color_name=self.custom_color_name
+            )
+        elif color_plus.custom_apply_option == 'apply_to_sel_rgb':
+            bpy.ops.color_plus.edit_color(
+                edit_type='apply', variation_value="color_only",
+                custom_color_name=self.custom_color_name
+            )
+        elif color_plus.custom_apply_option == 'apply_to_sel_alpha':
+            bpy.ops.color_plus.edit_color(
+                edit_type='apply', variation_value="alpha_only",
+                custom_color_name=self.custom_color_name
             )
         else: # Set color
             color_plus.color_wheel = getattr(color_plus, self.custom_color_name)

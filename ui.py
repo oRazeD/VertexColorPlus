@@ -346,7 +346,7 @@ class COLORPLUS_PT_custom_palette(PanelInfo, Panel):
         color_plus = context.scene.color_plus
         layout = self.layout
 
-        col = layout.column(align=True)
+        col = layout.column()
         COLORPLUS_PT_presets.draw_menu( # pylint: disable=E1120
             col, text="Custom Palette Presets"
         )

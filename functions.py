@@ -26,7 +26,7 @@ def public_color_exists(data: Mesh) -> bool:
     return True
 
 
-def create_color(data: Mesh, name: str="Color") -> Attribute:
+def create_color(data: Mesh, name: str="Attribute") -> Attribute:
     """Create color attribute from object mode."""
     color_attributes = data.color_attributes
     attribute = color_attributes.new(
