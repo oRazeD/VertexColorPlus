@@ -1,0 +1,19 @@
+schema_version = "1.0.0"
+
+id = "VertexColorsPlus"
+version = "0.3.2"
+name = "Vertex Colors Plus"
+tagline = "A Blender add-on for easily applying vertex color"
+maintainer = "Ethan Simon-Law <ethan.simon.3d@gmail.com>"
+type = "add-on"
+
+website = "https://github.com/oRazeD/VertexColorsPlus"
+
+tags = ["3D View", "Bake"]
+
+blender_version_min = "4.2.0"
+blender_version_max = "4.7.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
