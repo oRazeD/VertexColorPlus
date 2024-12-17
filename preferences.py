@@ -324,6 +324,8 @@ class COLORPLUS_property_group(bpy.types.PropertyGroup):
         max=1
     )
 
+    last_color_type: StringProperty()
+
     value_var_slider: FloatProperty(
         name="",
         description="Applies value variation to the selection without the need to change the Active Color (WARNING: This works with Live Tweak)",

@@ -262,10 +262,17 @@ class COLORPLUS_OT_set_color_from_active(DefaultsOperator):
 class COLORPLUS_OT_apply_attribute_shading(DefaultsOperator):
     """Sets the viewports shading to be more suitable for vertex editing"""
     bl_idname = "color_plus.apply_attribute_shading"
-    bl_label = "Apply Attribute Shading"
+    bl_label = "Toggle Attribute Shading"
 
     def execute(self, context: Context):
         context.space_data.shading.type = 'SOLID'
+
+        color_plus = context.scene.color_plus
+        if color_plus.last_color_type \
+        and context.space_data.shading.color_type == "VERTEX":
+            context.space_data.shading.color_type = color_plus.last_color_type
+            return {'FINISHED'}
+        color_plus.last_color_type = context.space_data.shading.color_type
         context.space_data.shading.color_type = 'VERTEX'
         return {'FINISHED'}
 
