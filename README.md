@@ -42,12 +42,9 @@ Vertex Colors Plus is a tool for easily applying Vertex Color to your mesh witho
 - [ ] Convert vertex group to vertex color
 - [ ] Import/export palette presets to/from a custom format
 
-# Known Issues
-Most known issues are with the undo stack and palette outliner. These 2 things were... Difficult to fully control. I wish to someday know more about these features to provide better solutions to these problems:
 
-- If you match a color in the palette outliner to another color while "live tweaking" it will merge the colors. This also happens if the color value is pure white.
-  - SOLUTION: Avoid dragging the color swatch around arbitrarily, preferring the input fields to change colors from within the Palette Outliner.
-- The Palette Outliner will desync if you undo in Edit Mode, but is not the case in other Context Modes.
-  - SOLUTION: The Manual Refresh Palette button fixes this, as well as using any operators that cues a resync of the outliner.
-- Sometimes the mesh goes pure black after an undo. This doesn't seem to happen after working on a mesh for a while.
-  - SOLUTION: This is a visual bug only, your mesh isn't actually colored black. Adding another color or playing with UI elements fixes this.
+# Support
+
+Vertex Colors Plus is a FOSS (Free and Open Source Software) project, which means I see very little return on my time spent developing and maintaining it.
+
+If you would like to support me, consider sending me a tip on [Ko-fi](https://ko-fi.com/razed)!
